@@ -1,0 +1,52 @@
+AWSPASS is a simple web page, that allows users to access their online usernames and passwords.  
+All information is encrypted with a user given key.  All processing and decryption happens on the user's computer in javascript
+----------------------
+
+USING:
+To use AWSPASS the end user needs to create an AWS account, as all files for AWSPASS are stored in the user's own S3 bucket. 
+
+Using the AWS Management console, copy the fullpass.htm and the contents of the jscrypt into your AWS S3 bucket say "awsbucketname".
+In a web browser type awsbucketname.s3.amazonaws.com/fullpass.htm
+
+Fill in an email address (username), and a key.
+
+NOTE: make the key a complete sentence or phrase, or something long. As this key will be the master password for all of the other saved passwords.
+
+Click "more" then "debug", to show a form to enter your AWSID and AWSSECRETKEY into the fields, then press "New Policy".
+Press "save" then "debug" again, and "Add Update".  
+
+Your AWS ID and SECRETKEY are only used to create the policy and are not saved or retained.
+
+Now you can add site usernames and passwords. The random button offers a suggested password, which may or may not meet the password requirements of the site you use.
+
+After entering some usernames and passwords, they can be retreived by entering the users email, key  and the site to retreive the username and password.
+Press "GetPass" and the username will be returned in the userfield, and the password is hidden, but selected.  With the password selected the user can copy (control-c) the password without it being revealed, and then pasted it into the password field of the web site the user is accessing.
+
+----------------------
+What was your inspiration or what problem is being addressed with this application?
+
+The difficulty of having a secure password that were accessable from and synchronized across several different computers.  And with the user accessing a web based site requring authentication, a web based solution was a natural fit.
+----------------------
+Who is your target customer/ user and what is the potential market size?
+
+Until the installer is easier to use, at the moment, AWSPASS is more geared for advanced users.  AWSPASS is for anyone who needs to remember passwords.  
+----------------------
+List key competitors of your idea, application or service and how your idea is different?
+
+Several password managers exist either as separate applications: KeePass, RoboForm or as part of the browser such as Firefox's password manager.  While these help the users remember secure passwords while they at the computer on which these tools are install and configured.  If users are not at their home/work machine, they would have a hard time accessing/remembering their login credentials.  AWSPASS is a user controlled and stored password store.
+----------------------
+
+
+It is has been shown, both humorusly:
+http://xkcd.com/792/
+and seriously:
+http://www.securityweek.com/survey-reveals-how-stupid-people-are-their-passwords
+that people will use one password or a set of passwords to access ALL of their sites, banking, social media, email etc. 
+Several password managers exist either as separate applications: KeePass, RoboForm or as part of the browser such as Firefox's password manager.  While these help the users remember secure passwords while they at the computer on which these tools are install and configured.  If users are not at their home/work machine, they would have a hard time accessing/remembering their login credentials. 
+AWSPASS is a simple web page, that allows users to access their online usernames and passwords.  
+
+
+
+
+
+

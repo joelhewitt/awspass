@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<script type="text/javascript" src="jscrypt/crypto.js"></script>
+<script type="text/javascript" src="jscrypt/sha1.js"></script>
+<script type="text/javascript" src="jscrypt/sha256.js"></script>
+<script type="text/javascript" src="jscrypt/pbkdf2.js"></script>
+<script type="text/javascript" src="jscrypt/aes.js"></script>
+<script type="text/javascript" src="jscrypt/ofb.js"></script>
+<script type="text/javascript" src="jscrypt/hmac.js"></script>
+<script type="text/javascript" src="jscrypt/base64.js"></script>
+<script type="text/javascript" src="jscrypt/ajaxRequest.js"></script>
+<script type="text/javascript" src="jscrypt/json2.js"></script>
+<script type="text/javascript" src="jscrypt/sha-aws.js"></script>
+<script type="text/javascript" src="jscrypt/awsform.js"></script>
+<script type="text/javascript" src="jscrypt/StrongPasswordGenerator.js"></script>
+<script type="text/javascript" src="jscrypt/jquery.js"></script>
+<script type="text/javascript" src="jscrypt/jquery.sha1.js"></script>
+<script type="text/javascript" src="jscrypt/jquery.sparkline.js"></script>
+<script type="text/javascript" src="jscrypt/jquery.hashmask.js"></script>
+<script type="text/javascript" src="jscrypt/pwd_strength.js"></script> 
+
+<script type="text/javascript">
+awsjsdir = "jscrypt/";
+
+awsbucket = "";
+//aws
+var awshost=window.location.host;
+var awsurl=awshost.search(/.s3.*amazonaws.com/);
+if (awsurl>0){
+awsbucket=awshost.substring(0,awsurl);
+} else {
+var awspath=window.location.pathname;
+awsbucket=awspath.substring(1,awspath.indexOf("/",1));
+window.location=window.location.protocol+"//"+awsbucket+"."+awshost+awspath.substring(awsbucket.length+1)
+}
+
+// <![CDATA[
+$(function() {
+	$("#key").hashmask();
+});
+// ]]>
+</script>
+
+</head><body>
+<form id="defnul" name="defnul">
+<table border="0" cellpadding="0">
+<tbody><tr>
+<td>
+Email:
+</td>
+<td colspan="2" align="left">
+<input id="email" type="text" width="20">
+</td>
+</tr><tr>
+<td>
+Key:
+</td>
+<td colspan="2" align="left">
+<input id="key" type="password" width="30"  >
+</td>
+</tr><tr>
+<td>
+Site:
+</td>
+<td colspan="2">
+<input id="site" type="text" width="20" onKeyPress="return (event.which==13)?getpass():true;">
+</td>
+</tr><tr>
+<td>
+Username:
+</td>
+<td colspan="2">
+<input id="user" type="text" width="20">
+</td>
+</tr><tr>
+<td>
+Password:
+</td>
+<td>
+<input id="decr" style="width: 0px;" type="text" onkeyup="runPassword(this.value, 'decr');"> 
+<div style="width: 100px;"> 
+<div id="decr_text" style="font-size: 10px;"></div>
+<div id="decr_bar" style="font-size: 1px; height: 2px; width: 0px; border: 1px solid white;"></div> 
+</div>
+</td>
+<td name="awsrand" id="awsrand" style="visibility: hidden;">
+<input value="Random" onclick="randomPass();runPassword(getElementById('decr').value, 'decr');" type="button">
+</td>
+</tr><tr>
+<td><a href="#" onclick="awsshowmore();return false;">More</a></td>
+<td>
+<input value="GetPass" onclick="getpass()" type="button">
+</td><td>
+<input value="Clear Form" onclick="formclear();" type="button">
+</td>
+</tr>
+<tr name="awsmore" id="awsmore" style="visibility: hidden;">
+<td><a href="#" onclick="awsshowdbg();return false;">Debug</a><br>
+&nbsp;
+</td>
+<td>
+<input value="Add Update" onclick="addpass()" type="button"><br>
+Enc site:<input id="clear" type="checkbox">
+</td><td>
+<input value="Del Entry" onclick="delpass()" type="button"><br>
+&nbsp;
+</td>
+</tr>
+</tbody></table>
+</form>
+
+<div name="divform" id="divform" style="visibility: hidden;">
+<input id="awsid" value="awsid" type="text" width="20">
+<input id="awskey" value="awssecretkey" type="text" width="20">
+<input value="New Policy" onclick="addpolicy()" type="button">
+
+<div id="workspace"><br><br></div>
+
+<br>
+<textarea id="pfile" name="pfile" rows="20" cols="140"></textarea><br>
+<form id="myform" name="myform" onsubmit="return OnSubmitForm();" method="post" enctype="multipart/form-data" target="upload_target">
+<div style="visibility: hidden;">
+<textarea id="file" name="file"></textarea>
+</div>
+<input name="save" value="Save" type="submit">
+<!--<input name="post" value="Post" onclick="OnPostForm()" type="button">-->
+</form>
+</div>
+<iframe id="upload_target" name="upload_target" src="jscrypt/fullpass.htm" style="width: 0pt; height: 0pt; border: 0px solid rgb(255, 255, 255);"></iframe> 
+</body></html>
