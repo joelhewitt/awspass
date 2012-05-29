@@ -80,11 +80,20 @@ Password:
 </td>
 <td>
 <input id="decr" style="width: 0px;" type="text" onkeyup="runPassword(this.value, 'decr');"> 
+<a href="" id=urllink></a>
 <div style="width: 100px;"> 
 <div id="decr_text" style="font-size: 10px;"></div>
 <div id="decr_bar" style="font-size: 1px; height: 2px; width: 0px; border: 1px solid white;"></div> 
 </div>
 </td>
+<tr name="urlbox" id="urlbox" style="visibility: hidden;">
+<td>
+Url:
+</td>
+<td colspan="2">
+<input id="url" type="text" width="20">
+</td>
+</tr>
 <td name="awsrand" id="awsrand" style="visibility: hidden;">
 <input value="Random" onclick="randomPass();runPassword(getElementById('decr').value, 'decr');" type="button">
 </td>

@@ -89,6 +89,9 @@ function formclear() {
 	document.getElementById('key').value="";
 	document.getElementById('site').value="";
 	document.getElementById('user').value="";
+	document.getElementById('urllink').href="";
+	document.getElementById('urllink').innerText="";
+	document.getElementById('url').value="";
 	document.getElementById('decr').value="";
 	document.getElementById('workspace').innerHTML="<br><br>";
 	document.getElementById('pfile').innerHTML="";
@@ -121,7 +124,7 @@ function addpolicy(){
 	var newpoly=JSON.stringify(poljs);
 	var awspolicy=Base64.encode(newpoly);
 	var awssignature=b64_hmac_sha1(awskey, awspolicy);
-	var template={'passconfig':['1',''],'awsaccesskeyid':[awsaccesskeyid,''],'awspolicy':[awspolicy,''],'awssignature':[awssignature,''],'eof':''};
+	var template={'passconfig':['1',''],'awsaccesskeyid':[awsaccesskeyid,''],'awspolicy':[awspolicy,''],'awssignature':[awssignature,''],'eof':['','']};
 	var jsontemplate=JSON.stringify(template);
 	document.getElementById('pfile').innerHTML=jsontemplate;
 	userpass=template;
@@ -130,6 +133,8 @@ function addpass(){
 	var site = document.getElementById('site').value;
 	var key = document.getElementById('key').value;
 	var user = document.getElementById('user').value;
+	var url = document.getElementById('url').value;
+	var urllink = document.getElementById('urllink');
 	var decr = document.getElementById('decr').value;
 	var wspace = document.getElementById('pfile');
 	
@@ -141,14 +146,16 @@ function addpass(){
 	var whtml="{";
 
 	for ( var iu in userpass ){
-		if (iu!=toadd && iu!=toaddc && iu!='eof')
-		whtml+="'"+iu+"': ['"+userpass[iu][0]+"','"+userpass[iu][1]+"'],\n";
+		if (iu!=toadd && iu!=toaddc && iu!='eof') {
+		urltmp=userpass[iu][2]==undefined?'':userpass[iu][2];
+			whtml+="'"+iu+"': ['"+userpass[iu][0]+"','"+userpass[iu][1]+"','"+urltmp+"'],\n";
+			}
 	}
 	
 	toadd=document.getElementById('clear').checked ? toaddc : toadd;
 	
-	whtml+="'"+toadd+"': ['"+Base64.encode(Crypto.AES.encrypt(user, cryptkey))+"','"+Base64.encode(Crypto.AES.encrypt(decr, cryptkey))+"'],\n";
-	whtml+="'eof':''}";
+	whtml+="'"+toadd+"': ['"+Base64.encode(Crypto.AES.encrypt(user, cryptkey))+"','"+Base64.encode(Crypto.AES.encrypt(decr, cryptkey))+"','"+Base64.encode(Crypto.AES.encrypt(url, cryptkey))+"'],\n";
+	whtml+="'eof':['','','']}";
 	wspace.innerHTML=whtml;
 	if (awsdebug==0){
 		OnSubmitForm();	
@@ -156,6 +163,8 @@ function addpass(){
 	}else{
 		userpass=eval("("+whtml+")");
 	}
+	urllink.innerText=url;
+	urllink.href="http://"+url;
 }
 
 function delpass(){
@@ -171,10 +180,12 @@ function delpass(){
 	var whtml="{";
 
 	for ( var iu in userpass ){
-		if (iu!=todelete && iu!=todeletec && iu!='eof')
-		whtml+="'"+iu+"': ['"+userpass[iu][0]+"','"+userpass[iu][1]+"'],\n";
+		if (iu!=todelete && iu!=todeletec && iu!='eof'){
+			url=userpass[iu][2]==undefined?'':userpass[iu][2];
+			whtml+="'"+iu+"': ['"+userpass[iu][0]+"','"+userpass[iu][1]+"','"+url+"'],\n";
+		}
 	}
-	whtml+="'eof':''}";
+	whtml+="'eof':['','','']}";
 	wspace.innerHTML=whtml;
 	if (awsdebug==0){
 		OnSubmitForm();	
@@ -189,6 +200,7 @@ function getpass() {
 	var email = document.getElementById('email').value;
 	var site = document.getElementById('site').value;
 	var user = document.getElementById('user').value;
+	var url = document.getElementById('url').value;
 	var decr = document.getElementById('decr').value;
 	var wspace = document.getElementById('workspace');
 	userpass=null;
@@ -202,7 +214,7 @@ function getpass() {
 	var lookupc = Base64.encode(cryptkey);
 	var lookup = site;
 	
-	wspace.innerHTML= "<pre>'"+lookup+"':<br>&nbsp;['"+Base64.encode(Crypto.AES.encrypt(user, cryptkey))+"',&nbsp;'"+Base64.encode(Crypto.AES.encrypt(decr, cryptkey))+"']&nbsp;<br>"+awsjsdir+cryptfile+".js&nbsp;</pre>";
+	wspace.innerHTML= "<pre>'"+lookup+"':<br>&nbsp;['"+Base64.encode(Crypto.AES.encrypt(user, cryptkey))+"',&nbsp;'"+Base64.encode(Crypto.AES.encrypt(decr, cryptkey))+"',&nbsp;'"+Base64.encode(Crypto.AES.encrypt(url, cryptkey))+"']&nbsp;<br>"+awsjsdir+cryptfile+".js&nbsp;</pre>";
 
 	ajaxRequest("http://"+awsbucket+".s3.amazonaws.com/"+awsjsdir+encodeURIComponent(cryptfile)+".js?cache="+cachedate,formfind);
 }
@@ -213,6 +225,8 @@ function formfind(encjsText) {
 	var email = document.getElementById('email').value;
 	var site = document.getElementById('site').value;
 	var user = document.getElementById('user');
+	var url = document.getElementById('url');
+	var urllink = document.getElementById('urllink');
 	var decr = document.getElementById('decr');
 	var wspace = document.getElementById('workspace');
 	var cryptfile=Base64.encode(Crypto.HMAC(Crypto.SHA256, email, key, { asString: true }));
@@ -239,6 +253,9 @@ function formfind(encjsText) {
 
 	user.value="";
 	decr.value="";
+	url.value="";
+	urllink.href="";
+	urllink.innerText="";
 	runPassword('', 'decr');
 
 	if (!userpass) {
@@ -252,11 +269,13 @@ function formfind(encjsText) {
 	if (userpass[lookup]){
 		siteuser=userpass[lookup][0];
 		sitepass=userpass[lookup][1];
+		siteurl=userpass[lookup][2];
 		document.getElementById('clear').checked=false;
 		
 	}else if (userpass[lookupc]) {
 		siteuser=userpass[lookupc][0];
 		sitepass=userpass[lookupc][1];
+		siteurl=userpass[lookupc][2];
 		document.getElementById('clear').checked=true;
 	
 	} else {
@@ -265,11 +284,16 @@ function formfind(encjsText) {
 	}
 	
 	lookup=document.getElementById('clear').checked ? lookupc : lookup;
-	wspace.innerHTML= "<pre>'"+lookup+"':<br>&nbsp;['"+Base64.encode(Crypto.AES.encrypt(user.value, cryptkey))+"',&nbsp;'"+Base64.encode(Crypto.AES.encrypt(decr.value, cryptkey))+"']&nbsp;<br>"+awsjsdir+cryptfile+".js&nbsp;</pre>";
+	wspace.innerHTML= "<pre>'"+lookup+"':<br>&nbsp;['"+Base64.encode(Crypto.AES.encrypt(user.value, cryptkey))+"',&nbsp;'"+Base64.encode(Crypto.AES.encrypt(decr.value, cryptkey))+"',&nbsp;'"+Base64.encode(Crypto.AES.encrypt(url.value, cryptkey))+"']&nbsp;<br>"+awsjsdir+cryptfile+".js&nbsp;</pre>";
 		
 	//decr.value=Crypto.AES.encrypt(sitepass, cryptkey);
 	user.value=Crypto.AES.decrypt(Base64.decode(siteuser),cryptkey);
 	decr.value=Crypto.AES.decrypt(Base64.decode(sitepass),cryptkey);
+	if (siteurl!=undefined){
+		url.value=Crypto.AES.decrypt(Base64.decode(siteurl),cryptkey);
+		urllink.innerText=Crypto.AES.decrypt(Base64.decode(siteurl),cryptkey);
+		urllink.href="http://"+Crypto.AES.decrypt(Base64.decode(siteurl),cryptkey);
+	}
 	runPassword(decr.value, 'decr');
 	decr.focus();
 	decr.select();
@@ -292,14 +316,17 @@ function awsshowdbg(){
 function awsshowmore(){
 	var awsrow=document.getElementById("awsmore");
 	var awsrand=document.getElementById("awsrand");
+	var urlbox=document.getElementById("urlbox");
 	if (awsmore==0) {
 		awsmore=1;
 		awsrow.style.visibility="visible";
 		awsrand.style.visibility="visible";
+		urlbox.style.visibility="visible";
 	}else{
 		awsmore=0;
 		awsrow.style.visibility="hidden";
 		awsrand.style.visibility="hidden";
+		urlbox.style.visibility="hidden";
 		var awsdiv=document.getElementById("divform");
 		awsdebug=0;
 		awsdiv.style.visibility="hidden";
