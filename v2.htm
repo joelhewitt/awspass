@@ -1,0 +1,94 @@
+
+<html> 
+<script type="text/javascript" src="jscrypt/crypto.js"></script> 
+<script type="text/javascript" src="jscrypt/sha256.js"></script> 
+<script type="text/javascript" src="jscrypt/hmac.js"></script> 
+ 
+ 
+<script> 
+  function cr(inp){
+		if (inp!=undefined)
+			return inp.charCodeAt();
+	}
+	
+        function bytesToBase64 (bytes) {
+			var base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+                for(var base64 = [], i = 0; i < bytes.length; i += 3) {
+                        var triplet = (cr(bytes[i]) << 16) | (cr(bytes[i + 1]) << 8) | cr(bytes[i + 2]);
+                        for (var j = 0; j < 4; j++) {
+                                if (i * 8 + j * 6 <= bytes.length * 8)
+                                        base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+                                else base64.push("=");
+                        }
+                }
+ 
+               return base64.join("");
+ 
+        }
+ 
+function preload() {
+var publish = "POST\n"+
+				"sns.us-east-1.amazonaws.com\n"+
+				"/\n"+
+				"AWSAccessKeyId=<AWSACCESSKEYID>&"+
+				"Action=Publish&"+
+				"Message=abcd&"+
+				"SignatureMethod=HmacSHA256&"+
+				"SignatureVersion=2&"+
+				"Timestamp=2012-12-12T01%3A24%3A26.652Z&"+
+				"TopicArn=arn%3Aaws%3Asns%3Aus-east-1%3ATopicName";
+ 
+var listTopics = "POST\n"+
+				"sns.us-east-1.amazonaws.com\n"+
+				"/\n"+
+				"AWSAccessKeyId=<AWSACCESSKEYID>&"+
+				"Action=ListTopics&"+
+				"MaxRecords=50&"+
+				"SignatureMethod=HmacSHA256&"+
+				"SignatureVersion=2&"+
+				"Timestamp=2012-12-12T01%3A20%3A45.405Z";
+		// Signature=U%2BsSQ1l.....3Hs%3D
+		
+var getQueueAttributes = "POST\n"+
+				"sqs.us-east-1.amazonaws.com\n"+
+				"/AbCd\n"+
+				"AWSAccessKeyId=<AWSACCESSKEYID>&"+
+				"Action=GetQueueAttributes&"+
+				"AttributeName=All&"+
+				"SignatureMethod=HmacSHA256&"+
+				"SignatureVersion=2&"+
+				"Timestamp=2012-12-12T01%3A12%3A39.330Z&"+
+				"Version=2011-10-01";
+		// Signature=OKCspyNgsi....or2HT749M%3D
+				
+//document.getElementById('blob').value=publish;
+//document.getElementById('blob').value=listTopics;
+document.getElementById('blob').value=getQueueAttributes
+}
+ 
+function clickjs() {
+	var key=document.getElementById('awsaccesskeyid');
+	var sec=document.getElementById('awssecretkey');
+	var blob=document.getElementById('blob');
+ 
+	blob.value=blob.value.replace("<AWSACCESSKEYID>",key.value);
+ 
+	var cryptsign=bytesToBase64(Crypto.HMAC(Crypto.SHA256, blob.value, sec.value, { asString: true }));
+	document.getElementById('signature').value=cryptsign;
+}
+ 
+window.onload = preload;
+</script> 
+ 
+To Sign<br> 
+<textarea id=blob style='width:400;height:200'></textarea><br> 
+AWS Access Key ID<br> 
+<input id=awsaccesskeyid style="width:500"><br> 
+AWS Secret Key<br> 
+<input id=awssecretkey  style="width:500"><br> 
+<br> 
+<button id="jssign" onclick="clickjs()" tabstop="1">Click</button> 
+<br> 
+Calculated Signature<br> 
+<input id=signature style="width:500"><br> 
+</html> 
